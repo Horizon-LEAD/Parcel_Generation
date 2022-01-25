@@ -1,0 +1,140 @@
+	{
+		"application": {
+			"$schema": "",
+			"$id": "path://to/git.repo",
+			"title": "Parcel Generation",
+			"version": "Parcel_Gen v1",
+			"description": "Generates parcels OD for an area",
+			"application-information": {
+				"application-type": "script",
+				"application-language": "python",
+				"environment": "20.04.3 LTS (Focal Fossa)",
+				"application-location": "git://path-to-code",
+				"build-required": "yes",
+				"build-instruction": "pip install -r requirements.txt",
+				"execution-instruction": "python3 Parcel_Generation.py Lable Input Output Params_ParcelGen.txt skimTijd_new_REF.mtx skimAfstand_new_REF.mtx Zones_v4.shp SEGS2020.csv parcelNodes_v2.shp CEPshares.csv "
+			}
+		},
+		"input": [{
+				"id": "0",
+				"arg": "0",
+				"desc": "ModelScript",
+				"requirements": [{
+					"filetype": ".py"
+				}]
+			},
+			{
+				"id": "1",
+				"arg": "1",
+				"desc": "Name of the simulation",
+				"requirements": [{}]
+			},
+			{
+				"id": "2",
+				"arg": "2",
+				"desc": "InputFolder",
+				"requirements": [{}]
+			},
+			{
+				"id": "3",
+				"arg": "3",
+				"desc": "OutputFolder",
+				"requirements": [{}]
+			},
+			{
+				"id": "4",
+				"arg": "4",
+				"desc": "ParameterFile",
+				"requirements": [{}]
+			},
+			{
+				"id": "5",
+				"arg": "5",
+				"desc": "TimeSkimMatrix",
+				"requirements": [{
+					"filetype": ".mtx"
+				}]
+
+			},
+			{
+				"id": "6",
+				"arg": "6",
+				"desc": "DistanceSkimMatrix",
+				"requirements": [{
+					"filetype": ".mtx"
+				}]
+
+			},
+			{
+				"id": "7",
+				"arg": "7",
+				"desc": "StudyAreaShapefile",
+				"requirements": [{
+					"filetype": ".shp"
+				}]
+			},
+			{
+				"id": "8",
+				"arg": "8",
+				"desc": "SocioeconomicData",
+				"requirements": [{
+					"filetype": ".csv",
+					"colnames": [{
+						"zone": "int",
+						"1: woningen": "float",
+						"9: arbeidspl_totaal": "float"
+					}]
+				}]
+			},
+			{
+				"id": "9",
+				"arg": "9",
+				"desc": "ParcelNodes",
+				"requirements": [{
+					"filetype": ".shp"
+				}]
+			},
+			{
+				"id": "10",
+				"arg": "10",
+				"desc": "CourierMarketShares",
+				"requirements": [{
+					"filetype": ".csv",
+					"colnames": [{
+						"CEP": "str",
+						"ShareTotal": "float"
+					}]
+				}]
+
+			},
+			{
+				"id": "11",
+				"arg": "11",
+				"desc": "ExternalZones",
+				"requirements": [{
+					"filetype": ".csv",
+					"colnames": [{
+						"Xcoor": "float",
+						"Ycoor": "float",
+						"AREANR": "int"
+					}]
+				}]
+
+			}
+		],
+		"output": [{
+				"id": "1",
+				"desc": "ParcelDemand",
+				"filetype": ".csv"
+			},
+			{
+				"id": "2",
+				"desc": "KPIs",
+				"filetype": ".json"
+			}, {
+				"id": "3",
+				"desc": "Log",
+				"filetype": ".txt"
+			}
+		]
+	}
