@@ -1,9 +1,9 @@
 import json
 import sys
 import traceback
+from os.path import join
 from time import time 
 from datetime import datetime
-from pdb import set_trace
 
 import pandas as pd
 import numpy as np
@@ -17,8 +17,6 @@ KPIs = {}
 
 def run_model(varDict, root=None):
     start_time = time()
-    
-    set_trace()
 
     if root:
         root.progressBar['value'] = 0
@@ -40,8 +38,11 @@ def run_model(varDict, root=None):
     parcelSuccessB2B = varDict['PARCELS_SUCCESS_B2B']
     parcelSuccessB2C = varDict['PARCELS_SUCCESS_B2C']
 
-    log_file = open(datapathO + "Logfile_ParcelDemand.log", "w")
+    log_file = open(join(datapathO, "Logfile_ParcelDemand.log"), "w")
     log_file.write("Start simulation at: " + datetime.now().strftime("%y-%m-%d %H:%M")+"\n")
+
+    print(f'CONFIG: {varDict}')
+    log_file.write("CONFIG: " + str(varDict) + "\n")
         
         
     # ---------------------------- Import data --------------------------------
@@ -163,8 +164,10 @@ def run_model(varDict, root=None):
         ls = 6
 
         # Write the REF parcel demand
-        print(f"Writing parcels to {datapathO}ParcelDemand_REF.csv"), log_file.write(f"Writing parcels to {datapathO}ParcelDemand_REF.csv\n")
-        parcels.to_csv(f"{datapathO}ParcelDemand_REF.csv", index=False)  
+        out_parcel_demand_ref = join(datapathO, "ParcelDemand_REF.csv")
+        print(f"Writing parcels to {out_parcel_demand_ref}"), 
+        log_file.write(f"Writing parcels to {out_parcel_demand_ref}\n")
+        parcels.to_csv(out_parcel_demand_ref, index=False)  
 
         # Consolidation potential per logistic segment (for UCC scenario)
         probConsolidation = np.array(pd.read_csv(datapathI + 'ConsolidationPotential.csv', index_col='Segment'))
@@ -236,11 +239,12 @@ def run_model(varDict, root=None):
         parcels['Parcel_ID'] = np.arange(1,len(parcels)+1)
         
         nParcels = len(parcels)
-        
-        
+    
     # ------------------------- Prepare output -------------------------------- 
-    print(f"Writing parcels CSV to     {datapathO}ParcelDemand_{label}.csv"), log_file.write(f"Writing parcels to {datapathO}ParcelDemand_{label}.csv\n")
-    parcels.to_csv(f"{datapathO}ParcelDemand_{label}.csv", index=False)  
+    out_parcel_demand = join(datapathO, f"ParcelDemand_{label}.csv")
+    print(f"Writing parcels CSV to {out_parcel_demand}")
+    log_file.write(f"Writing parcels CSV to {out_parcel_demand}\n")
+    parcels.to_csv(out_parcel_demand, index=False)  
             
     # # Aggregate to number of parcels per zone and export to geojson
     # print(f"Writing parcels GeoJSON to {datapathO}ParcelDemand_{label}.geojson"), log_file.write(f"Writing shapefile to {datapathO}ParcelDemand_{label}.geojson\n")
@@ -313,8 +317,10 @@ def run_model(varDict, root=None):
     #     geoFile.write(']\n')
     #     geoFile.write('}')
 
-    # Write KPIs as Json    
-    KPIfile = varDict['OUTPUTFOLDER'] + 'KPI_' + varDict['LABEL']+'.json'
+    # Write KPIs as Json
+    out_kpis_json = join(datapathO, f"KPI_{label}.json")
+    print(f"Writing KPIs JSON file to {out_kpis_json}")
+    log_file.write(f"Writing KPIs JSON file to {out_kpis_json}\n")
 
     print('Gathering KPIs')
     # For some reason, json doesn't like np.int or floats
@@ -347,17 +353,15 @@ def run_model(varDict, root=None):
     # print(KPIs)
     
     
-    f = open(KPIfile, "w")
+    f = open(out_kpis_json, "w")
     json.dump(KPIs, f,indent = 2)
     f.close()
-    
     
     KPI_Json = json.dumps(KPIs, indent = 2) 
     if varDict['printKPI'] :
         print(KPI_Json)
 
-
-    totaltime = round(time.time() - start_time, 2)
+    totaltime = round(time() - start_time, 2)
     log_file.write("Total runtime: %s seconds\n" % (totaltime))  
     log_file.write("End simulation at: "+ datetime.now().strftime("%y-%m-%d %H:%M")+"\n")
     log_file.close()    

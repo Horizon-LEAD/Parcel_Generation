@@ -4,7 +4,7 @@ parcelgen
 Generates parcels
 """
 
-from os import environ, getcwd
+from os import getcwd
 from os.path import isfile, join, abspath
 from sys import argv
 from dotenv import dotenv_values
@@ -43,8 +43,8 @@ def main():
     config = parse_env_values(dotenv_values(abspath(args.env)))
     params = parse_params_file(config['PARAMS_FILE'])
     config.update(params)
-    # for key, value in config.items():
-    #     print(f'{key:<30s}: {value}')
+    for key, value in config.items():
+        print(f'{key:<30s}: {value}')
     # environ.update(config)
     
     if args.gui:
@@ -55,7 +55,7 @@ def main():
 
         return root.returnInfo
     
-    run_model(['', config])
+    run_model(config)
 
 
 if __name__ == "__main__":

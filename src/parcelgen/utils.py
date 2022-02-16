@@ -59,7 +59,7 @@ def parse_env_values(config):
             print(f"WARNING: OUTPUTFOLDER not an absolute path - translating to: {config['OUTPUTFOLDER']}")
 
         for key, value in config.items():
-            if value in ("LABEL", "INPUTFOLDER", "OUTPUTFOLDER"):
+            if key in ("LABEL", "INPUTFOLDER", "OUTPUTFOLDER"):
                 continue
 
             config[key] = os.path.join(config['INPUTFOLDER'], value)
