@@ -1,0 +1,21 @@
+RUN_DEMAND_MODULE			= True							: bool
+CROWDSHIPPING_NETWORK			= True							: bool
+COMBINE_DELIVERY_PICKUP_TOUR 		= True 							: bool
+HYPERCONNECTED_NETWORK			= False							: bool
+printKPI  				= True 						: bool
+
+								
+
+'''FOR PARCEL DEMAND MODULE'''
+# Changed parameters to C2X ACM post&pakketmonitor2020 20.8M parcels
+PARCELS_PER_HH_C2C   = 20.8 / 250 / 8.0 *.04									: eval # M parcels / days / M HHs 
+PARCELS_PER_HH_B2C   = 0.195 *.04										: eval
+PARCELS_PER_HH       = varDict['PARCELS_PER_HH_C2C'] + varDict['PARCELS_PER_HH_B2C'] 				: eval
+PARCELS_PER_EMPL     = 0 											: float
+Local2Local          = 0.04											: float
+CS_cust_willingness  = 0.1 											: float # Willingess to SEND a parcel by CS
+PARCELS_MAXLOAD	 = 180												: float
+PARCELS_DROPTIME = 120												: float
+PARCELS_SUCCESS_B2C   = 0.75											: float
+PARCELS_SUCCESS_B2B   = 0.95											: float
+PARCELS_GROWTHFREIGHT = 1.0											: float
