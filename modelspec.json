@@ -1,0 +1,222 @@
+{
+    "application": {
+        "key": "parcel-gen",
+        "version": "0.1.0",
+        "name": "Parcel Generation",
+        "description": "The Parcel Generation model generates [...]",
+        "types": ["ABM"],
+        "application-information": {
+            "url": "https://github.com/Horizon-LEAD/Parcel_Generation",
+            "type": "script-python",
+            "environment": "Ubuntu 20.04.3 LTS",
+            "build-instruction": "pip install -r requirements.txt",
+            "execution-instruction": "python3 src/Parcel_Generation.py {sim-name} {input-folder} {output-foler} {parameters-file} {time-skim-matrix} {distance-skim-matrix} {area-shape-file} {socioeconomic-data} {parcel-nodes} {courier-market-shares}",
+            "execution-example": "python3 src/Parcel_Generation.py Lable InputFolder OutputFolder Params_ParcelGen.txt skimTijd_new_REF.mtx skimAfstand_new_REF.mtx Zones_v4.shp SEGS2020.csv parcelNodes_v2.shp CEPshares.csv"
+        }
+    },
+    "input": [
+        {
+            "key": "sim-name",
+            "name": "Parcel Generation Simulation Name",
+            "description": "A few more words",
+            "type": "string",
+            "is_optional": false,
+            "schema": {},
+            "validators": []
+        },
+        {
+            "key": "input-folder",
+            "name": "Input Folder",
+            "description": "A few more words",
+            "type": "string",
+            "is_optional": false,
+            "schema": {},
+            "validators": []
+        },
+        {
+            "key": "output-folder",
+            "name": "Output Folder",
+            "description": "A few more words",
+            "type": "string",
+            "is_optional": false,
+            "schema": {},
+            "validators": []
+        },
+        {
+            "key": "parameters-file",
+            "name": "Parameters File",
+            "description": "Text file containing the parameters of the model",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": []
+        },
+        {
+            "key": "time-skim-matrix",
+            "name": "Time Skim Matrix",
+            "description": "Matrix that contains the time (in seconds) between each pair OD",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "mtx_file",
+                    "type": "extension",
+                    "value": ".mtx"
+                }
+            ]
+        },
+        {
+            "key": "distance-skim-matrix",
+            "name": "Distance Skim Matrix",
+            "description": "Matrix that contains the distance (in kilometres) between each pair OD",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "mtx_file",
+                    "type": "extension",
+                    "value": ".mtx"
+                }
+            ]
+        },
+        {
+            "key": "area-shape-file",
+            "name": "Area Shape File",
+            "description": "Shapefile of the city. The areas delimited should be linked with the areas in the Socioeconomic Data file.",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "shp_file",
+                    "type": "extension",
+                    "value": ".shp"
+                }
+            ]
+        },
+        {
+            "key": "socioeconomic-data",
+            "name": "Socioeconomic Data",
+            "description": "CSV with socioeconomic data per area within the city. The mandatory fields are \"zone\"; \"1: woningen\"; \"9: arbeidspl_totaal\"",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "csv_file",
+                    "type": "extension",
+                    "value": ".csv"
+                },
+                {
+                    "name": "socioeco_data_col_validation",
+                    "type": "columns",
+                    "value": "{\"0\": {\"name\": \"zone\", \"type\": \"int\"}, \"1\": {\"name\": \"woningen\", \"type\": \"float\"}, \"2\": {\"name\": \"arbeidspl_total\", \"type\": \"float\"}}"
+                }
+            ]
+        },
+        {
+            "key": "parcel-nodes",
+            "name": "Parcel Nodes",
+            "description": "Shape with the location of the distribution nodes of the couriers",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "shp_file",
+                    "type": "extension",
+                    "value": ".shp"
+                }
+            ]
+        },
+        {
+            "key": "courier-market-shares",
+            "name": "Courier Market Shares",
+            "description": "Couriers table with market shares ",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "csv_file",
+                    "type": "extension",
+                    "value": ".csv"
+                },
+                {
+                    "name": "courier_market_shares_col_validation",
+                    "type": "columns",
+                    "value": "{\"1\": {\"name\": \"CEP\", \"type\": \"string\"}, \"2\": {\"name\": \"ShareTotal\", \"type\": \"float\"}}"
+                }
+            ]
+        },
+        {
+            "key": "external-zones",
+            "name": "External Zones",
+            "description": "Coordinates of the external (super) zones that lie outside of the study area.",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "csv_file",
+                    "type": "extension",
+                    "value": ".csv"
+                },
+                {
+                    "name": "external_zones_col_validation",
+                    "type": "columns",
+                    "value": "{\"1\": {\"name\": \"Xcoor\", \"type\": \"float\"}, \"2\": {\"name\": \"Ycoor\", \"type\": \"float\"}, \"3\": {\"name\": \"AREANR\", \"type\": \"int\"}}"
+                }
+            ]
+        }
+    ],
+    "output": [
+        {
+            "key": "parcel-demand",
+            "name": "Parcel Demand",
+            "description": "Parcel list with Origin, Destination and Courier",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "csv_file",
+                    "type": "extension",
+                    "value": ".csv"
+                }
+            ]
+        },
+        {
+            "key": "kpis",
+            "name": "Key Performance Indicators",
+            "description": "File containing key KPIs estimated in the model",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "json_file",
+                    "type": "extension",
+                    "value": ".json"
+                }
+            ]
+        },
+        {
+            "key": "log",
+            "name": "Log file",
+            "description": "The logs of the run",
+            "type": "file",
+            "is_optional": false,
+            "schema": {},
+            "validators": [
+                {
+                    "name": "log_file",
+                    "type": "extension",
+                    "value": ".txt"
+                }
+            ]
+        }
+    ]
+}
