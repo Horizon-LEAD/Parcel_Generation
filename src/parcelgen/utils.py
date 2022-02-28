@@ -6,6 +6,10 @@ import shapefile as shp
 import array
 import os.path
 
+ENV_VARS = ["PARAMS_FILE", "SKIMTIME", "SKIMDISTANCE", "ZONES", "SEGS", "PARCELNODES", 
+            "CEP_SHARES", "EXTERNAL_ZONES", "CONSOLIDATION_POTENTIAL", 
+            "ZEZ_SCENARIO"]
+
 
 def parse_params_file(path):
     """Parses the parameters file
@@ -58,13 +62,13 @@ def parse_env_values(config):
             config['OUTPUTFOLDER'] = os.path.abspath(config['OUTPUTFOLDER'])
             print(f"WARNING: OUTPUTFOLDER not an absolute path - translating to: {config['OUTPUTFOLDER']}")
 
-        for key, value in config.items():
+        for key in ENV_VARS:
             if key in ("LABEL", "INPUTFOLDER", "OUTPUTFOLDER"):
                 continue
 
-            config[key] = os.path.join(config['INPUTFOLDER'], value)
-    except (AssertionError, TypeError) as exc:
-        raise AssertionError("Failed while parsing .env configuration") from exc
+            config[key] = os.path.join(config['INPUTFOLDER'], config[key])
+    except (AssertionError, TypeError, KeyError) as exc:
+        raise AssertionError("Failed while parsing environment configuration") from exc
     
     return config
 

@@ -1,6 +1,4 @@
 import json
-import sys
-import traceback
 from os.path import join
 from time import time 
 from datetime import datetime
@@ -22,7 +20,6 @@ def run_model(varDict, root=None):
         root.progressBar['value'] = 0
             
     # Define folders relative to current datapath
-    datapathI = varDict['INPUTFOLDER']
     datapathO = varDict['OUTPUTFOLDER']
     # datapathP = varDict['PARAMFOLDER']
     zonesPath        = varDict['ZONES']
@@ -40,8 +37,6 @@ def run_model(varDict, root=None):
 
     log_file = open(join(datapathO, "Logfile_ParcelDemand.log"), "w")
     log_file.write("Start simulation at: " + datetime.now().strftime("%y-%m-%d %H:%M")+"\n")
-
-    print(f'CONFIG: {varDict}')
     log_file.write("CONFIG: " + str(varDict) + "\n")
         
         
@@ -53,7 +48,7 @@ def run_model(varDict, root=None):
     zones = pd.DataFrame(zones).sort_values('AREANR')
     zones.index = zones['AREANR']
 
-    supCoordinates = pd.read_csv(varDict['ExternalZones'], sep=',')
+    supCoordinates = pd.read_csv(varDict['EXTERNAL_ZONES'], sep=',')
     supCoordinates.index = supCoordinates['AREANR']
     
     zonesX = {}
@@ -170,10 +165,10 @@ def run_model(varDict, root=None):
         parcels.to_csv(out_parcel_demand_ref, index=False)  
 
         # Consolidation potential per logistic segment (for UCC scenario)
-        probConsolidation = np.array(pd.read_csv(datapathI + 'ConsolidationPotential.csv', index_col='Segment'))
+        probConsolidation = np.array(pd.read_csv(varDict['CONSOLIDATION_POTENTIAL'], index_col='Segment'))
         
         # Vehicle/combustion shares (for UCC scenario)
-        sharesUCC  = pd.read_csv(datapathI + 'ZEZscenario.csv', index_col='Segment')
+        sharesUCC  = pd.read_csv(varDict['ZEZ_SCENARIO'], index_col='Segment')
     
         # Assume no consolidation potential and vehicle type switch for dangerous goods
         sharesUCC = np.array(sharesUCC)[:-1,:-1]

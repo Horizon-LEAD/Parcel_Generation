@@ -1,4 +1,5 @@
 FROM python:3.8.12-slim-bullseye
+
 WORKDIR /srv/parcelgen
 
 RUN apt-get update && \
