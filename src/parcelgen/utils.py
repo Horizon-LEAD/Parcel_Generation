@@ -70,7 +70,7 @@ def parse_env_values(config):
     except (AssertionError, TypeError, KeyError) as exc:
         raise AssertionError("Failed while parsing environment configuration") from exc
     
-    return config
+    return config.copy()
 
 
 def get_traveltime(orig,dest,skim,nZones,timeFac):

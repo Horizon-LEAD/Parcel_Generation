@@ -51,7 +51,7 @@ def main():
 
     parser.add_argument('-v', '--verbosity', action='count', default=0, 
                         help='Increase output verbosity')
-    parser.add_argument('-e', '--env', type=strfile, default=join(getcwd(), ".env"),
+    parser.add_argument('-e', '--env', type=str, default=join(getcwd(), ".env"),
                         help='Defines the path of the environment file')
     parser.add_argument('--gui', action='store_true', default=False,
                         help='Displays the graphical user interface')
