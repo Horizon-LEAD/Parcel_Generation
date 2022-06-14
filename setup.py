@@ -26,7 +26,7 @@ def get_version():
     return '0.0.1-alpha'
 
 setup(
-    name='parcel-gen',
+    name='parcelgen',
     version=get_version(),
     description='A sample Python project',
     long_description=long_description,
@@ -41,25 +41,6 @@ setup(
         'pandas',
         'pyshp'
     ],
-
-    # extras_require={  # Optional
-    #     'dev': ['check-manifest'],
-    #     'test': ['coverage'],
-    # },
-    
-    # # If there are data files included in your packages that need to be
-    # # installed, specify them here.
-    # package_data={  # Optional
-    #     'sample': ['package_data.dat'],
-    # },
-
-    # # Although 'package_data' is the preferred approach, in some case you may
-    # # need to place data files outside of your packages. See:
-    # # http://docs.python.org/distutils/setupscript.html#installing-additional-files
-    # #
-    # # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    # data_files=[('my_data', ['data/data_file'])],  # Optional
-    
     entry_points={
         'console_scripts': [
             'parcelgen=parcelgen.__main__:main'

@@ -26,6 +26,7 @@ def strfile(path):
         return path
     raise ArgumentTypeError("Input file does not exist")
 
+
 def strdir(path):
     """Argparse type checking method
     string path for file should exist"""
@@ -37,8 +38,8 @@ def strdir(path):
 def main():
     parser = ArgumentParser(description=__doc__,
                             formatter_class=RawDefaultsHelpFormatter)
-    
-    # parser.add_argument('label', type=strdir, help='The directory of the input files')
+
+    # parser.add_argument('label', type=str, help='A label for the execution')
     # parser.add_argument('params', type=strfile, help='The path of the params file (txt)')
     # parser.add_argument('time_skim', type=strfile, help='The path of the time skim matrix (mtx)')
     # parser.add_argument('distance_skim', type=strfile, help='The path of the distance skim matrix (mtx)')
@@ -49,13 +50,13 @@ def main():
     # parser.add_argument('external_nodes', type=strfile, help='The path of the external nodes file (csv)')
     # parser.add_argument('output_dir', type=strdir, help='The output path')
 
-    parser.add_argument('-v', '--verbosity', action='count', default=0, 
+    parser.add_argument('-v', '--verbosity', action='count', default=0,
                         help='Increase output verbosity')
     parser.add_argument('-e', '--env', type=str, default=join(getcwd(), ".env"),
                         help='Defines the path of the environment file')
     parser.add_argument('--gui', action='store_true', default=False,
                         help='Displays the graphical user interface')
-    
+
     args = parser.parse_args(argv[1:])
 
     config = {}
@@ -72,7 +73,7 @@ def main():
     config.update(params)
     for key, value in config.items():
         print(f'{key:<30s}: {value}')
-    
+
     if args.gui:
         from .ui import ParcelGenUI
 
@@ -80,7 +81,7 @@ def main():
         print(root.returnInfo)
 
         return root.returnInfo
-    
+
     run_model(config)
 
 
