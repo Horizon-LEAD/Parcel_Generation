@@ -1,2 +1,5 @@
-__version__="0.1.0"
-__version_info__=(0, 1, 0)
+""" ParcelGen init
+"""
+
+__version__ = "0.1.0"
+__version_info__ = (0, 1, 0)

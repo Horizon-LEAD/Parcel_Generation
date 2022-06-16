@@ -6,7 +6,7 @@ Generates parcels
 
 import logging
 from logging.handlers import RotatingFileHandler
-from os import getcwd, environ
+from os import environ
 from os.path import isfile, join, abspath, exists
 from sys import argv
 from argparse import (ArgumentParser, RawTextHelpFormatter,
@@ -14,7 +14,7 @@ from argparse import (ArgumentParser, RawTextHelpFormatter,
 
 from dotenv import dotenv_values
 
-from .utils import parse_env_values, parse_params_file
+from .utils import parse_env_values
 from .ui import ParcelGenUI
 from .proc import run_model
 

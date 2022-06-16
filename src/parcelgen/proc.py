@@ -1,73 +1,57 @@
+""" ParcelGen processing module
+"""
+
 import json
 from os.path import join
 from time import time
-from datetime import datetime
+from logging import getLogger
 
 import pandas as pd
 import numpy as np
 
-# from parcelgen.utils import read_mtx, read_shape #, create_geojson, get_traveltime, get_distance
 from .utils import read_shape, read_mtx
 
 
+logger = getLogger("parcelgen.proc")
 KPIs = {}
 
 
-def run_model(varDict, root=None):
-    """Runs the model
+def run_model(cfg, root=None):
+    """ Start the parcel generation simulation.
 
-    :param varDict: _description_
-    :type varDict: _type_
-    :param root: _description_, defaults to None
-    :type root: _type_, optional
-    :return: _description_
-    :rtype: _type_
+    :param cfg: The configuration dictionary
+    :type cfg: dict
+    :param root: ParcelGenUI instance in case gui flag is enabled, defaults to None
+    :type root: ParcelGenUI, optional
+    :return: Exit codes list
+    :rtype: list
     """
     start_time = time()
 
     if root:
         root.progressBar['value'] = 0
 
-    # Define folders relative to current datapath
-    datapathO = varDict['OUTDIR']
-    # datapathP = varDict['PARAMFOLDER']
-    zonesPath        = varDict['ZONES']
-    skimTravTimePath = varDict['SKIMTIME']
-    skimDistancePath = varDict['SKIMDISTANCE']
-    parcelNodesPath  = varDict['PARCELNODES']
-    cepSharesPath    = varDict['CEP_SHARES']
-    segsPath         = varDict['SEGS']
-    label            = varDict['LABEL']
-
-    parcelsPerHH     = varDict['PARCELS_PER_HH']
-    parcelsPerEmpl   = varDict['PARCELS_PER_EMPL']
-    parcelSuccessB2B = varDict['PARCELS_SUCCESS_B2B']
-    parcelSuccessB2C = varDict['PARCELS_SUCCESS_B2C']
-
-    log_file = open(join(datapathO, "Logfile_ParcelDemand.log"), "w")
-    log_file.write("Start simulation at: " + datetime.now().strftime("%y-%m-%d %H:%M")+"\n")
-    log_file.write("CONFIG: " + str(varDict) + "\n")
-
+    outdir = cfg['OUTDIR']
+    label  = cfg['LABEL']
 
     # ---------------------------- Import data --------------------------------
-    print('Importing data...')
-    log_file.write('Importing data...\n')
+    logger.info('Importing data...')
 
-    zones = read_shape(zonesPath)
+    zones = read_shape(cfg['ZONES'])
     zones = pd.DataFrame(zones).sort_values('AREANR')
     zones.index = zones['AREANR']
 
-    supCoordinates = pd.read_csv(varDict['EXTERNAL_ZONES'], sep=',')
-    supCoordinates.index = supCoordinates['AREANR']
+    sup_coordinates = pd.read_csv(cfg['EXTERNAL_ZONES'], sep=',')
+    sup_coordinates.index = sup_coordinates['AREANR']
 
     zonesX = {}
     zonesY = {}
     for areanr in zones.index:
         zonesX[areanr] = zones.at[areanr, 'X']
         zonesY[areanr] = zones.at[areanr, 'Y']
-    for areanr in supCoordinates.index:
-        zonesX[areanr] = supCoordinates.at[areanr, 'Xcoor']
-        zonesY[areanr] = supCoordinates.at[areanr, 'Ycoor']
+    for areanr in sup_coordinates.index:
+        zonesX[areanr] = sup_coordinates.at[areanr, 'Xcoor']
+        zonesY[areanr] = sup_coordinates.at[areanr, 'Ycoor']
 
     nIntZones = len(zones)
     nSupZones = 43
@@ -77,17 +61,17 @@ def run_model(varDict, root=None):
         zoneDict[nIntZones+i+1] = 99999900 + i + 1
     invZoneDict = dict((v, k) for k, v in zoneDict.items())
 
-    segs              = pd.read_csv(segsPath)
+    segs              = pd.read_csv(cfg['SEGS'])
     segs.index        = segs['zone']
 
-    parcelNodes, coords = read_shape(parcelNodesPath, returnGeometry=True)
+    parcelNodes, coords = read_shape(cfg['PARCELNODES'], returnGeometry=True)
     parcelNodes['X']    = [coords[i]['coordinates'][0] for i in range(len(coords))]
     parcelNodes['Y']    = [coords[i]['coordinates'][1] for i in range(len(coords))]
     parcelNodes.index   = parcelNodes['id'].astype(int)
     parcelNodes         = parcelNodes.sort_index()
     nParcelNodes        = len(parcelNodes)
 
-    cepShares = pd.read_csv(cepSharesPath, index_col=0)
+    cepShares = pd.read_csv(cfg['CEP_SHARES'], index_col=0)
     cepList   = np.unique(parcelNodes['CEP'])
     cepNodes = [np.where(parcelNodes['CEP']==str(cep))[0] for cep in cepList]
     cepNodeDict = {}
@@ -96,7 +80,7 @@ def run_model(varDict, root=None):
 
 
     # ------------------ Get skim data and make parcel skim --------------------
-    skimTravTime = read_mtx(skimTravTimePath)
+    skimTravTime = read_mtx(cfg['SKIMTIME'])
     nZones   = int(len(skimTravTime)**0.5)
     parcelSkim = np.zeros((nZones, nParcelNodes))
 
@@ -110,11 +94,12 @@ def run_model(varDict, root=None):
 
 
     # ---- Generate parcels each zone based on households and select a parcel node for each parcel -----
-    print('Generating parcels...'), log_file.write('Generating parcels...\n')
+    logger.info('Generating parcels...')
 
-    # Calculate number of parcels per zone based on number of households and total number of parcels on an average day
-    zones['parcels']  = (segs['1: woningen'        ] * parcelsPerHH   / parcelSuccessB2C)
-    zones['parcels'] += (segs['9: arbeidspl_totaal'] * parcelsPerEmpl / parcelSuccessB2B)
+    # Calculate number of parcels per zone based on number of households and
+    # total number of parcels on an average day
+    zones['parcels']  = (segs['1: woningen'        ] * cfg['PARCELS_PER_HH']   / cfg['PARCELS_SUCCESS_B2C'])
+    zones['parcels'] += (segs['9: arbeidspl_totaal'] * cfg['PARCELS_PER_EMPL'] / cfg['PARCELS_SUCCESS_B2B'])
     zones['parcels']  = np.array(np.round(zones['parcels'],0), dtype=int)
 
     # Spread over couriers based on market shares
@@ -168,16 +153,15 @@ def run_model(varDict, root=None):
         ls = 6
 
         # Write the REF parcel demand
-        out_parcel_demand_ref = join(datapathO, "ParcelDemand_REF.csv")
-        print(f"Writing parcels to {out_parcel_demand_ref}"),
-        log_file.write(f"Writing parcels to {out_parcel_demand_ref}\n")
+        out_parcel_demand_ref = join(outdir, "ParcelDemand_REF.csv")
+        logger.info(f"Writing parcels to %s", out_parcel_demand_ref),
         parcels.to_csv(out_parcel_demand_ref, index=False)
 
         # Consolidation potential per logistic segment (for UCC scenario)
-        probConsolidation = np.array(pd.read_csv(varDict['CONSOLIDATION_POTENTIAL'], index_col='Segment'))
+        probConsolidation = np.array(pd.read_csv(cfg['CONSOLIDATION_POTENTIAL'], index_col='Segment'))
 
         # Vehicle/combustion shares (for UCC scenario)
-        sharesUCC  = pd.read_csv(varDict['ZEZ_SCENARIO'], index_col='Segment')
+        sharesUCC  = pd.read_csv(cfg['ZEZ_SCENARIO'], index_col='Segment')
 
         # Assume no consolidation potential and vehicle type switch for dangerous goods
         sharesUCC = np.array(sharesUCC)[:-1,:-1]
@@ -197,7 +181,7 @@ def run_model(varDict, root=None):
         # Couple these vehicle types to Harmony vehicle types
         vehUccToVeh = {0:8, 1:9, 2:7, 3:1, 4:5, 5:6, 6:6}
 
-        print('Redirecting parcels via UCC...'), log_file.write('Redirecting parcels via UCC...\n')
+        logger.info('Redirecting parcels via UCC...')
 
         parcels['FROM_UCC'] = 0
         parcels['TO_UCC'  ] = 0
@@ -223,7 +207,9 @@ def run_model(varDict, root=None):
             newParcels[count, 2] = trueDest             # Destination
             newParcels[count, 3] = depotNumbers[i]      # Depot ID
             newParcels[count, 4] = parcelsCep[i]        # Courier name
-            newParcels[count, 5] = vehUccToVeh[np.where(sharesVehUCC[ls,:]>np.random.rand())[0][0]] # Vehicle type
+            newParcels[count, 5] = vehUccToVeh[
+                    np.where(sharesVehUCC[ls,:]>np.random.rand())[0][0]
+            ] # Vehicle type
             newParcels[count, 6] = 1                    # From UCC
             newParcels[count, 7] = 0                    # To UCC
 
@@ -245,13 +231,12 @@ def run_model(varDict, root=None):
         nParcels = len(parcels)
 
     # ------------------------- Prepare output --------------------------------
-    out_parcel_demand = join(datapathO, f"ParcelDemand.csv")
-    print(f"Writing parcels CSV to {out_parcel_demand}")
-    log_file.write(f"Writing parcels CSV to {out_parcel_demand}\n")
+    out_parcel_demand = join(outdir, "ParcelDemand.csv")
+    logger.info("Writing parcels CSV to %s", out_parcel_demand)
     parcels.to_csv(out_parcel_demand, index=False)
 
     # # Aggregate to number of parcels per zone and export to geojson
-    # print(f"Writing parcels GeoJSON to {datapathO}ParcelDemand_{label}.geojson"), log_file.write(f"Writing shapefile to {datapathO}ParcelDemand_{label}.geojson\n")
+    # logger.info("Writing parcels GeoJSON to %s", join(outdir, "ParcelDemand.geojson"))
     # if label == 'UCC':
     #     parcelsShape = pd.pivot_table(parcels, values=['Parcel_ID'], index=["DepotNumber", 'CEP','D_zone', 'O_zone', 'VEHTYPE', 'FROM_UCC', 'TO_UCC'],\
     #                                   aggfunc = {'DepotNumber': np.mean, 'CEP':     'first',  'O_zone': np.mean, 'D_zone': np.mean, 'Parcel_ID': 'count', \
@@ -296,8 +281,8 @@ def run_model(varDict, root=None):
     # By = np.array(By, dtype=str)
     # nRecords = len(parcelsShape)
 
-    # with open(datapathO + f"ParcelDemand_{label}.geojson", 'w') as geoFile:
-    #     geoFile.write('{\n' + '"type": "FeatureCollection",\n' + '"features": [\n')
+    # with open(join(outdir, "ParcelDemand.geojson"), 'w', encoding = 'utf_8') as fp_geo:
+    #     fp_geo.write('{\n' + '"type": "FeatureCollection",\n' + '"features": [\n')
     #     for i in range(nRecords-1):
     #         outputStr = ""
     #         outputStr = outputStr + '{ "type": "Feature", "properties": '
@@ -305,7 +290,7 @@ def run_model(varDict, root=None):
     #         outputStr = outputStr + ', "geometry": { "type": "LineString", "coordinates": [ [ '
     #         outputStr = outputStr + Ax[i] + ', ' + Ay[i] + ' ], [ '
     #         outputStr = outputStr + Bx[i] + ', ' + By[i] + ' ] ] } },\n'
-    #         geoFile.write(outputStr)
+    #         fp_geo.write(outputStr)
     #         if i%int(nRecords/10) == 0:
     #             print('\t' + str(int(round((i / nRecords)*100, 0))) + '%', end='\r')
 
@@ -317,16 +302,13 @@ def run_model(varDict, root=None):
     #     outputStr = outputStr + ', "geometry": { "type": "LineString", "coordinates": [ [ '
     #     outputStr = outputStr + Ax[i] + ', ' + Ay[i] + ' ], [ '
     #     outputStr = outputStr + Bx[i] + ', ' + By[i] + ' ] ] } }\n'
-    #     geoFile.write(outputStr)
-    #     geoFile.write(']\n')
-    #     geoFile.write('}')
+    #     fp_geo.write(outputStr)
+    #     fp_geo.write(']\n')
+    #     fp_geo.write('}')
 
     # Write KPIs as Json
-    out_kpis_json = join(datapathO, f"KPI.json")
-    print(f"Writing KPIs JSON file to {out_kpis_json}")
-    log_file.write(f"Writing KPIs JSON file to {out_kpis_json}\n")
-
-    print('Gathering KPIs')
+    out_kpis_json = join(outdir, "KPI.json")
+    logger.info("Writing KPIs JSON file to %s", out_kpis_json)
     # For some reason, json doesn't like np.int or floats
     for index, key in enumerate(KPIs):
         # print(key)
@@ -354,33 +336,27 @@ def run_model(varDict, root=None):
                 KPIs[key] = val
             except:
                 a=1
-    # print(KPIs)
 
+    with open(out_kpis_json, "w", encoding='utf_8') as fp_kpis:
+        json.dump(KPIs, fp_kpis, indent = 2)
 
-    f = open(out_kpis_json, "w")
-    json.dump(KPIs, f,indent = 2)
-    f.close()
-
-    KPI_Json = json.dumps(KPIs, indent = 2)
-    if varDict['printKPI'] :
-        print(KPI_Json)
+    if cfg['printKPI'] :
+        logger.info(json.dumps(KPIs, indent = 2))
 
     totaltime = round(time() - start_time, 2)
-    log_file.write("Total runtime: %s seconds\n" % (totaltime))
-    log_file.write("End simulation at: "+ datetime.now().strftime("%y-%m-%d %H:%M")+"\n")
-    log_file.close()
+    logger.info("Total runtime: %s seconds", totaltime)
 
     if root:
         root.update_statusbar("Parcel Demand: Done")
         root.progressBar['value'] = 100
 
         # 0 means no errors in execution
-        root.returnInfo = [0, [0,0]]
+        root.returnInfo = [0, [0, 0]]
 
         return root.returnInfo
 
     else:
-        return [0, [0,0]]
+        return [0, [0, 0]]
 
 
     # except Exception as exc:
