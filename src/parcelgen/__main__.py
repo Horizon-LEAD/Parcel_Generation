@@ -54,8 +54,6 @@ def main():
     parser = ArgumentParser(description=__doc__,
                             formatter_class=RawDefaultsHelpFormatter)
 
-    # parser.add_argument('LABEL', type=str, help='A label for the execution')
-    parser.add_argument('PARAMS_FILE', type=strfile, help='The path of the params file (txt)')
     parser.add_argument('SKIMTIME', type=strfile, help='The path of the time skim matrix (mtx)')
     parser.add_argument('SKIMDISTANCE', type=strfile,
                         help='The path of the distance skim matrix (mtx)')
