@@ -15,7 +15,6 @@ from argparse import (ArgumentParser, RawTextHelpFormatter,
 from dotenv import dotenv_values
 
 from .utils import parse_env_values
-from .ui import ParcelGenUI
 from .proc import run_model
 
 
@@ -128,6 +127,8 @@ def main():
         print(f'{key:<30s}: {value}')
 
     if args.gui:
+        from .ui import ParcelGenUI
+
         root = ParcelGenUI(config)
         print(root.return_info)
 

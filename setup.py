@@ -39,7 +39,8 @@ setup(
     install_requires=[
         'networkx',
         'pandas',
-        'pyshp'
+        'pyshp',
+        'python-dotenv'
     ],
     entry_points={
         'console_scripts': [
