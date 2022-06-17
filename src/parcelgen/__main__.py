@@ -129,7 +129,7 @@ def main():
 
     if args.gui:
         root = ParcelGenUI(config)
-        print(root.returnInfo)
+        print(root.return_info)
 
         return
 

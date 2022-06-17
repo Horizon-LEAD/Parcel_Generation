@@ -1,10 +1,12 @@
-from ast import literal_eval
+"""ParcelGen utilities
+"""
 from logging import getLogger
+import array
+import os.path
+
 import pandas as pd
 import numpy as np
 import shapefile as shp
-import array
-import os.path
 
 ENV_VARS = ["PARAMS_FILE", "SKIMTIME", "SKIMDISTANCE", "ZONES", "SEGS", "PARCELNODES",
             "CEP_SHARES", "EXTERNAL_ZONES", "CONSOLIDATION_POTENTIAL",
@@ -20,50 +22,6 @@ PARAMS_NUM=["PARCELS_PER_EMPL", "Local2Local", "CS_cust_willingness",
 
 
 logger = getLogger("parcelgen.utils")
-
-
-def test():
-    logger.debug('just a test')
-
-
-def parse_params_file(path):
-    """Parses the parameters file
-
-    :param path: The parameters file path
-    :type path: str
-    :return: A dictionary with the parameters
-    :rtype: dict
-    """
-
-    varDict = {}
-    params_file = open(path, encoding="utf_8")
-
-    for line in params_file:
-        print('LINE: ', line)
-        if len(line.split('=')) > 1:
-            key, value = line.split('=')
-            if len(value.split(':')) > 1:
-                value, dtype = value.split(':')
-                if len(dtype.split('#')) > 1: dtype, comment = dtype.split('#')
-                # Allow for spacebars around keys, values and dtypes
-                while key[0] == ' ' or key[0] == '\t': key = key[1:]
-                while key[-1] == ' ' or key[-1] == '\t': key = key[0:-1]
-                while value[0] == ' ' or value[0] == '\t': value = value[1:]
-                while value[-1] == ' ' or value[-1] == '\t': value = value[0:-1]
-                while dtype[0] == ' ' or dtype[0] == '\t': dtype = dtype[1:]
-                while dtype[-1] == ' ' or dtype[-1] == '\t': dtype = dtype[0:-1]
-                dtype = dtype.replace('\n',"")
-                # print(key, value, dtype)
-                if dtype == 'string': varDict[key] = str(value)
-                elif dtype == 'list': varDict[key] = literal_eval(value)
-                elif dtype == 'int': varDict[key] = int(value)
-                elif dtype == 'float': varDict[key] = float(value)
-                elif dtype == 'bool': varDict[key] = eval(value)
-                elif dtype == 'variable': varDict[key] = globals()[value]
-                elif dtype == 'eval': varDict[key] = eval(value)
-
-    print('PARAMS varDict: ', varDict)
-    return varDict
 
 
 def parse_env_values(env):
@@ -113,99 +71,146 @@ def to_bool(value):
     return False
 
 
-def get_traveltime(orig,dest,skim,nZones,timeFac):
-    ''' Obtain the travel time [h] for orig to a destination zone. '''
-    return skim[(orig-1)*nZones+(dest-1)] * timeFac / 3600
+def get_traveltime(orig, dest, skim, n_zones, time_fac):
+    """Obtain the travel time [h] for orig to a destination zone.
+
+    :param orig: _description_
+    :type orig: _type_
+    :param dest: _description_
+    :type dest: _type_
+    :param skim: _description_
+    :type skim: _type_
+    :param n_zones: _description_
+    :type n_zones: _type_
+    :param time_fac: _description_
+    :type time_fac: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+
+    return skim[(orig-1)*n_zones + (dest-1)] * time_fac / 3600
 
 
-def get_distance(orig,dest,skim,nZones):
-    ''' Obtain the distance [km] for orig to a destination zone. '''
-    return skim[(orig-1)*nZones+(dest-1)] / 1000
+def get_distance(orig, dest, skim, n_zones):
+    """Obtain the distance [km] for orig to a destination zone.
+
+    :param orig: _description_
+    :type orig: _type_
+    :param dest: _description_
+    :type dest: _type_
+    :param skim: _description_
+    :type skim: _type_
+    :param n_zones: _description_
+    :type n_zones: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+
+    return skim[(orig-1)*n_zones + (dest-1)] / 1000
 
 
 def read_mtx(mtxfile):
-    '''
-    Read a binary mtx-file (skimTijd and skimAfstand)
-    '''
-    mtxData = array.array('i')  # i for integer
-    mtxData.fromfile(open(mtxfile, 'rb'), os.path.getsize(mtxfile) // mtxData.itemsize)
+    """Read a binary mtx-file (skimTijd and skimAfstand)
+
+    :param mtxfile: _description_
+    :type mtxfile: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+
+    mtx_data = array.array('i')
+    with open(mtxfile, 'rb') as fp_mtx:
+        mtx_data.fromfile(fp_mtx, os.path.getsize(mtxfile) // mtx_data.itemsize)
 
     # The number of zones is in the first byte
-    mtxData = np.array(mtxData, dtype=int)[1:]
+    mtx_data = np.array(mtx_data, dtype=int)[1:]
 
-    return mtxData
+    return mtx_data
 
 
-def read_shape(shapePath, encoding='latin1', returnGeometry=False):
+def read_shape(shape_path, encoding='latin1', return_geometry=False):
     '''
     Read the shapefile with zones (using pyshp --> import shapefile as shp)
     '''
     # Load the shape
-    sf = shp.Reader(shapePath, encoding=encoding)
-    records = sf.records()
-    if returnGeometry:
-        geometry = sf.__geo_interface__
+    sf_reader = shp.Reader(shape_path, encoding=encoding)
+    records = sf_reader.records()
+    if return_geometry:
+        geometry = sf_reader.__geo_interface__
         geometry = geometry['features']
         geometry = [geometry[i]['geometry'] for i in range(len(geometry))]
-    fields = sf.fields
-    sf.close()
+    fields = sf_reader.fields
+    sf_reader.close()
 
     # Get information on the fields in the DBF
     columns  = [x[0] for x in fields[1:]]
-    colTypes = [x[1:] for x in fields[1:]]
-    nRecords = len(records)
+    col_types = [x[1:] for x in fields[1:]]
+    n_records = len(records)
 
     # Put all the data records into a NumPy array (much faster than Pandas DataFrame)
-    shape = np.zeros((nRecords,len(columns)), dtype=object)
-    for i in range(nRecords):
+    shape = np.zeros((n_records,len(columns)), dtype=object)
+    for i in range(n_records):
         shape[i,:] = records[i][0:]
 
     # Then put this into a Pandas DataFrame with the right headers and data types
     shape = pd.DataFrame(shape, columns=columns)
-    for col in range(len(columns)):
-        if colTypes[col][0] == 'C':
-            shape[columns[col]] = shape[columns[col]].astype(str)
+    for i_c, column in enumerate(columns):
+        if col_types[i_c][0] == 'C':
+            shape[column] = shape[column].astype(str)
         else:
-            shape.loc[pd.isna(shape[columns[col]]), columns[col]] = -99999
-            if colTypes[col][-1] > 0:
-                shape[columns[col]] = shape[columns[col]].astype(float)
+            shape.loc[pd.isna(shape[column]), column] = -99999
+            if col_types[i_c][-1] > 0:
+                shape[column] = shape[column].astype(float)
             else:
-                shape[columns[col]] = shape[columns[col]].astype(int)
+                shape[column] = shape[column].astype(int)
 
-    if returnGeometry:
+    if return_geometry:
         return (shape, geometry)
-    else:
-        return shape
+
+    return shape
 
 
-def create_geojson(output_path, DataFrame, origin_x, origin_y, destination_x, destination_y)    :
-    #----- GeoJSON ---
-    # print('Writing GeoJSON...')
-    Ax = np.array(DataFrame[origin_x], dtype=str)
-    Ay = np.array(DataFrame[origin_y], dtype=str)
-    Bx = np.array(DataFrame[destination_x], dtype=str)
-    By = np.array(DataFrame[destination_y], dtype=str)
-    nTrips = len(DataFrame.index)
+def create_geojson(output_path, dataframe, origin_x, origin_y, destination_x, destination_y):
+    """Creates GEO JSON file
 
-    with open(output_path, 'w') as geoFile:
-        geoFile.write('{\n' + '"type": "FeatureCollection",\n' + '"features": [\n')
-        for i in range(nTrips-1):
-            outputStr = ""
-            outputStr = outputStr + '{ "type": "Feature", "properties": '
-            outputStr = outputStr + str(DataFrame.loc[i,:].to_dict()).replace("'",'"')
-            outputStr = outputStr + ', "geometry": { "type": "LineString", "coordinates": [ [ '
-            outputStr = outputStr + Ax[i] + ', ' + Ay[i] + ' ], [ '
-            outputStr = outputStr + Bx[i] + ', ' + By[i] + ' ] ] } },\n'
-            geoFile.write(outputStr)
+    :param output_path: The output path to create the file
+    :type output_path: str
+    :param dataframe: The data
+    :type dataframe: pd.Dataframe
+    :param origin_x: X origin index
+    :type origin_x: _type_
+    :param origin_y: Y origin index
+    :type origin_y: _type_
+    :param destination_x: X destination index
+    :type destination_x: _type_
+    :param destination_y: Y destination index
+    :type destination_y: _type_
+    """
+    a_x = np.array(dataframe[origin_x], dtype=str)
+    a_y = np.array(dataframe[origin_y], dtype=str)
+    b_x = np.array(dataframe[destination_x], dtype=str)
+    b_y = np.array(dataframe[destination_y], dtype=str)
+    n_trips = len(dataframe.index)
+
+    with open(output_path, 'w') as geo_file:        # FIXME: no encoding
+        geo_file.write('{\n' + '"type": "FeatureCollection",\n' + '"features": [\n')
+        for i in range(n_trips-1):
+            output_str = ""
+            output_str = output_str + '{ "type": "Feature", "properties": '
+            output_str = output_str + str(dataframe.loc[i, :].to_dict()).replace("'", '"')
+            output_str = output_str + ', "geometry": { "type": "LineString", "coordinates": [ [ '
+            output_str = output_str + a_x[i] + ', ' + a_y[i] + ' ], [ '
+            output_str = output_str + b_x[i] + ', ' + b_y[i] + ' ] ] } },\n'
+            geo_file.write(output_str)
 
         # Bij de laatste feature moet er geen komma aan het einde
         i += 1
-        outputStr = ""
-        outputStr = outputStr + '{ "type": "Feature", "properties": '
-        outputStr = outputStr + str(DataFrame.loc[i,:].to_dict()).replace("'",'"')
-        outputStr = outputStr + ', "geometry": { "type": "LineString", "coordinates": [ [ '
-        outputStr = outputStr + Ax[i] + ', ' + Ay[i] + ' ], [ '
-        outputStr = outputStr + Bx[i] + ', ' + By[i] + ' ] ] } }\n'
-        geoFile.write(outputStr)
-        geoFile.write(']\n')
-        geoFile.write('}')
+        output_str = ""
+        output_str = output_str + '{ "type": "Feature", "properties": '
+        output_str = output_str + str(dataframe.loc[i, :].to_dict()).replace("'", '"')
+        output_str = output_str + ', "geometry": { "type": "LineString", "coordinates": [ [ '
+        output_str = output_str + a_x[i] + ', ' + a_y[i] + ' ], [ '
+        output_str = output_str + b_x[i] + ', ' + b_y[i] + ' ] ] } }\n'
+        geo_file.write(output_str)
+        geo_file.write(']\n')
+        geo_file.write('}')

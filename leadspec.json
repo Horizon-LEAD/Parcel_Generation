@@ -271,7 +271,7 @@
         },
         {
             "name": "Parcel Demand",
-            "variableName": "parcel_demand",
+            "variableName": "ParcelDemand",
             "description": "Parcel list with Origin, Destination and Courier.",
             "isOutput": true,
             "isOptional": false,
@@ -335,7 +335,7 @@
         },
         {
             "name": "Log File",
-            "variableName": "logfile",
+            "variableName": "logs",
             "description": "File containing the logs of the run.",
             "isOutput": true,
             "isOptional": false,
