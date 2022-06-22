@@ -51,9 +51,21 @@ def generate_args(method):
     
     if method == 'from_file':   
             
-        if sys.argv[0] == '':
-            params_file = open(f'{datapath}Input/Params_ParcelGen.txt')
+        if sys.argv[0] == '' :
+            params_file = open(f'{datapath}/Input/Params_ParcelGen.txt')
+            varDict['LABEL'	]			= 'ConsoleRun'			
+            varDict['DATAPATH']			= f'{datapath}'							
+            varDict['INPUTFOLDER']		= f'{datapath}'+'/' +'Input' +'/' 				
+            varDict['OUTPUTFOLDER']		= f'{datapath}'+'/' + 'Output' +'/'			
             
+            varDict['SKIMTIME'] 		= varDict['INPUTFOLDER'] + 'skimTijd_new_REF.mtx'  #'skimTijd_new_REF.mtx' 		
+            varDict['SKIMDISTANCE']		= varDict['INPUTFOLDER'] + 'skimAfstand_new_REF.mtx' #'skimAfstand_new_REF.mtx'	
+            varDict['ZONES']			= varDict['INPUTFOLDER'] +'Zones_v4.shp'#'Zones_v4.shp'				
+            varDict['SEGS']				= varDict['INPUTFOLDER'] + 'SEGS2020.csv'	 #'SEGS2020.csv'				
+            varDict['PARCELNODES']		= varDict['INPUTFOLDER'] + 'parcelNodes_v2.shp' #'parcelNodes_v2.shp'				
+            varDict['CEP_SHARES']       = varDict['INPUTFOLDER'] + 'CEPshares.csv'	 #'CEPshares.csv'	
+            varDict['ExternalZones']    = varDict['INPUTFOLDER'] + 'SupCoordinatesID.csv' #'CEPshares.csv'		
+
             
         else:  # This is the part for line cod execution
             locationparam = f'{datapath}' +'/'+ sys.argv[2] +'/' + sys.argv[4]
@@ -69,15 +81,15 @@ def generate_args(method):
             varDict['SEGS']				= varDict['INPUTFOLDER'] + sys.argv[8] #'SEGS2020.csv'				
             varDict['PARCELNODES']		= varDict['INPUTFOLDER'] + sys.argv[9] #'parcelNodes_v2.shp'				
             varDict['CEP_SHARES']       = varDict['INPUTFOLDER'] + sys.argv[10] #'CEPshares.csv'	
-            varDict['ExternalZones']       = varDict['INPUTFOLDER'] + sys.argv[11] #'CEPshares.csv'					
+            varDict['ExternalZones']       = varDict['INPUTFOLDER'] + sys.argv[11] #'CEPshares.csv'			
+
             
-    
             
         for line in params_file:
             if len(line.split('=')) > 1:
                 key, value = line.split('=')
-                if len(value.split(':')) > 1:
-                    value, dtype = value.split(':')
+                if len(value.split(';')) > 1:
+                    value, dtype = value.split(';')
                     if len(dtype.split('#')) > 1: dtype, comment = dtype.split('#')
                     # Allow for spacebars around keys, values and dtypes
                     while key[0] == ' ' or key[0] == '\t': key = key[1:]
@@ -146,6 +158,8 @@ def generate_args(method):
     return args, varDict
 
 method = 'from_file' #either from_file or from_code
+
+
 args, varDict = generate_args(method)
 
 TESTRUN = False # True to fasten further code TEST (runs with less parcels)
@@ -422,6 +436,14 @@ def actually_run_module(args):
         # ---- Generate parcels each zone based on households and select a parcel node for each parcel -----
         print('Generating parcels...'), log_file.write('Generating parcels...\n')
         
+        # Filter the zones of the study area (edit 24/4)
+        
+        
+        zones = zones[zones['GEMEENTEN'].isin(varDict['Gemeenten_studyarea'])]
+        
+        
+        
+        
         # Calculate number of parcels per zone based on number of households and total number of parcels on an average day
         zones['parcels']  = (segs['1: woningen'        ] * parcelsPerHH   / parcelSuccessB2C)
         zones['parcels'] += (segs['9: arbeidspl_totaal'] * parcelsPerEmpl / parcelSuccessB2B)
@@ -556,7 +578,16 @@ def actually_run_module(args):
         # ------------------------- Prepare output -------------------------------- 
         print(f"Writing parcels CSV to     {datapathO}ParcelDemand_{label}.csv"), log_file.write(f"Writing parcels to {datapathO}ParcelDemand_{label}.csv\n")
         parcels.to_csv(f"{datapathO}ParcelDemand_{label}.csv", index=False)  
-                
+         
+        
+        
+        KPIs ["Number Of Parcels"] = len(parcels)
+        
+        
+        
+        
+        
+        
         # # Aggregate to number of parcels per zone and export to geojson
         # print(f"Writing parcels GeoJSON to {datapathO}ParcelDemand_{label}.geojson"), log_file.write(f"Writing shapefile to {datapathO}ParcelDemand_{label}.geojson\n")
         # if label == 'UCC':     
