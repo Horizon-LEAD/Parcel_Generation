@@ -95,6 +95,7 @@ def run_model(cfg, root=None):
 
     # Calculate number of parcels per zone based on number of households and
     # total number of parcels on an average day
+    zones = zones[zones['GEMEENTEN'].isin(cfg['Gemeenten_studyarea'])]
     zones['parcels']  = (segs['1: woningen'] * cfg['PARCELS_PER_HH']   / \
         cfg['PARCELS_SUCCESS_B2C'])
     zones['parcels'] += (segs['9: arbeidspl_totaal'] * cfg['PARCELS_PER_EMPL'] / \
@@ -244,6 +245,8 @@ def run_model(cfg, root=None):
     # FIXME: iteration will never run - fix KPIs population to dict -> JSON
     logger.info("Populating KPIs")
     kpis = {}
+    kpis["Number Of Parcels"] = len(parcels)
+
     # For some reason, json doesn't like np.int or floats
     # for index, key in enumerate(kpis):
     #     # print(key)

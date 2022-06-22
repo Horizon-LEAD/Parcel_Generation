@@ -13,12 +13,13 @@ ENV_VARS = ["PARAMS_FILE", "SKIMTIME", "SKIMDISTANCE", "ZONES", "SEGS", "PARCELN
             "ZEZ_SCENARIO"]
 BOOL_VALUES = ('true', 't', 'on', '1', 'false', 'f', 'off', '0')
 BOOL_TRUE_VALUES = ('true', 't', 'on', '1')
-PARAMS_BOOL=["RUN_DEMAND_MODULE", "CROWDSHIPPING_NETWORK", "COMBINE_DELIVERY_PICKUP_TOUR",
-             "HYPERCONNECTED_NETWORK", "printKPI"]
-PARAMS_NUM=["PARCELS_PER_EMPL", "Local2Local", "CS_cust_willingness",
-            "PARCELS_MAXLOAD", "PARCELS_DROPTIME", "PARCELS_SUCCESS_B2C",
-            "PARCELS_SUCCESS_B2B", "PARCELS_GROWTHFREIGHT", "PARCELS_PER_HH_B2C",
-            "PARCELS_M", "PARCELS_DAYS", "PARCELS_M_HHS"]
+PARAMS_BOOL = ["RUN_DEMAND_MODULE", "CROWDSHIPPING_NETWORK", "COMBINE_DELIVERY_PICKUP_TOUR",
+               "HYPERCONNECTED_NETWORK", "printKPI"]
+PARAMS_NUM = ["PARCELS_PER_EMPL", "Local2Local", "CS_cust_willingness",
+              "PARCELS_MAXLOAD", "PARCELS_DROPTIME", "PARCELS_SUCCESS_B2C",
+              "PARCELS_SUCCESS_B2B", "PARCELS_GROWTHFREIGHT", "PARCELS_PER_HH_B2C",
+              "PARCELS_M", "PARCELS_DAYS", "PARCELS_M_HHS"]
+PARAMS_LIST_STR = ["Gemeenten_studyarea"] 
 
 
 logger = getLogger("parcelgen.utils")
@@ -41,6 +42,11 @@ def parse_env_values(env):
             config_env[key] = to_bool(env[key])
         for key in PARAMS_NUM:
             config_env[key] = float(env[key])
+        for key in PARAMS_LIST_STR:
+            if env[key] == '':
+                config_env[key] = []
+            else:
+                config_env[key] = env[key].split(',')
     except KeyError as exc:
         raise KeyError("Failed while parsing environment configuration") from exc
     except ValueError as exc:
