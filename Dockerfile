@@ -1,6 +1,6 @@
 FROM python:3.8.12-slim-bullseye
 
-WORKDIR /srv/parcelgen
+WORKDIR /srv/parcel-generation
 
 RUN apt-get update && \
    apt-get install -y --no-install-recommends \
@@ -14,4 +14,4 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir .
 
-ENTRYPOINT [ "parcelgen", "-vv" ]
+ENTRYPOINT [ "parcel-generation", "-vv" ]
