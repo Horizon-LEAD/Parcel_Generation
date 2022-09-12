@@ -46,6 +46,28 @@ def strdir(path):
     raise ArgumentTypeError("Input directory does not exist")
 
 
+def get_log_level(vcount):
+    """Translates the CLI input of the user for the verbosity
+    to an actual logging level.
+
+    :param vcount: The user input in verbosity counts
+    :type vcount: int
+    :return: The logging level constant
+    :rtype: int
+    """
+    loglevel = logging.ERROR
+    if vcount >= 3:
+        loglevel = logging.DEBUG
+    elif vcount == 2:
+        loglevel = logging.INFO
+    elif vcount == 1:
+        loglevel = logging.WARNING
+    else:
+        return loglevel
+
+    return loglevel
+
+
 def main():
     """Main method of Parcel Generation Model.
     """
@@ -79,16 +101,6 @@ def main():
     args = parser.parse_args(argv[1:])
 
     # setting of the logger
-    loglevel = 0
-    if args.verbosity <= 0:
-        loglevel = logging.ERROR
-    elif args.verbosity == 1:
-        loglevel = logging.WARNING
-    elif args.verbosity == 2:
-        loglevel = logging.INFO
-    else:
-        loglevel = logging.DEBUG
-
     formatter = logging.Formatter(fmt=LOG_MSG_FMT, datefmt=LOG_DT_FMT)
     shandler = logging.StreamHandler()
     shandler.setFormatter(formatter)
@@ -103,6 +115,7 @@ def main():
         fhandler.setFormatter(formatter)
         logger.addHandler(fhandler)
 
+    loglevel = get_log_level(args.verbosity)
     logger.setLevel(loglevel)
 
     logger.debug('CMD : %s', ' '.join(argv))
@@ -112,9 +125,12 @@ def main():
     config = vars(args).copy()
     _ = [config.pop(key) for key in ("verbosity", "flog", "env", "gui")]
     config_env = {}
-    if isfile(abspath(args.env)):
-        logger.info("using env file: %s", abspath(args.env))
-        config_env = parse_env_values(dotenv_values(abspath(args.env)))
+    if args.env:
+        if isfile(abspath(args.env)):
+            logger.info("using env file: %s", abspath(args.env))
+            config_env = parse_env_values(dotenv_values(abspath(args.env)))
+        else:
+            raise ValueError('error: invalid .env file')
     else:
         logger.info("using environment")
         config_env = parse_env_values(environ)
