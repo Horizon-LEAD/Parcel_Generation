@@ -44,7 +44,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'parcelgen=parcelgen.__main__:main'
+            'parcel-generation=parcelgen.__main__:main'
         ],
     },
     project_urls={
