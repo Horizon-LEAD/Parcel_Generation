@@ -10,56 +10,6 @@
     "url": "https://github.com/Horizon-LEAD/parcel-gen",
     "modelData":  [
         {
-            "name": "Simulation Label",
-            "variableName": "label",
-            "description": "A label to be given to the simulation output. ",
-            "isOutput": false,
-            "isOutputDir": false,
-            "isOptional": false,
-            "inputType": "CLI",
-            "chartType": "NONE",
-            "modelDataType": {
-                "name": "string",
-                "description": "",
-                "dataType": "string",
-                "extension": null,
-                "validators": [
-                    {
-                        "name": "required",
-                        "description": "required",
-                        "validatorType": "required",
-                        "value": ""
-                    }
-                ],
-                "objectKeys": []
-            }
-        },
-        {
-            "name": "Parameters File",
-            "variableName": "params",
-            "description": "A parameters text file.",
-            "isOutput": false,
-            "isOutputDir": false,
-            "isOptional": false,
-            "inputType": "CLI",
-            "chartType": "NONE",
-            "modelDataType": {
-                "name": "file",
-                "description": "",
-                "dataType": "file",
-                "extension": "txt",
-                "validators": [
-                    {
-                        "name": "required",
-                        "description": "required",
-                        "validatorType": "required",
-                        "value": ""
-                    }
-                ],
-                "objectKeys": []
-            }
-        },
-        {
             "name": "Time Skim Matrix",
             "variableName": "tsmtx",
             "description": "Matrix that contains the time (in seconds) between each pair OD.",
@@ -365,6 +315,5 @@
             "qualifier": null,
             "dateFormat": null
         }
-
     ]
 }
