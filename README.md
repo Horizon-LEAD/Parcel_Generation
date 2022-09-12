@@ -8,13 +8,19 @@ The `requirements.txt` and `Pipenv` files are provided for the setup of an envir
 
 After the install is completed, an executable `parcelgen` will be available to the user.
 
+Furthermore, a `Dockerfile` is provided so that the user can package the parcel generation model. To build the image the following command must be issued from the project's root directory:
+
+```
+docker build -t parcel-generation:latest .
+```
+
 ## Usage
 
 The executable's help message provides information on the parameters that are needed.
 
 ```
-$ parcelgen -h
-usage: parcelgen [-h] [-v] [--flog] [-e ENV] [--gui] PARAMS_FILE SKIMTIME SKIMDISTANCE ZONES SEGS PARCELNODES CEP_SHARES EXTERNAL_ZONES OUTDIR
+$ parcel-generation -h
+usage: parcel-generation [-h] [-v] [--flog] [-e ENV] [--gui] SKIMTIME SKIMDISTANCE ZONES SEGS PARCELNODES CEP_SHARES EXTERNAL_ZONES OUTDIR
 
 parcelgen
 
@@ -41,25 +47,64 @@ optional arguments:
 Furthermore, the following parameters must be provided as environment variables either from the environment itself or through a dotenv file that is specified with the `--env <path-to-dotenv>` optional command line argument. An example of the `.env` file and some values is presented below.
 
 ```
-LABEL='default'                         # * || 'UCC'
+LABEL='default'
+# boolean parameters
+RUN_DEMAND_MODULE=true
+CROWDSHIPPING_NETWORK=True
+COMBINE_DELIVERY_PICKUP_TOUR=True
+HYPERCONNECTED_NETWORK=FALSE
+printKPI=True
 
-RUN_DEMAND_MODULE=true                  # boolean
-CROWDSHIPPING_NETWORK=TRUE              # boolean
-COMBINE_DELIVERY_PICKUP_TOUR=True       # boolean
-HYPERCONNECTED_NETWORK=False            # boolean
-printKPI=True                           # boolean
+# numeric parameters
+PARCELS_PER_EMPL=0.00
+Local2Local=0.04
+# Willingess to SEND a parcel by CS
+CS_cust_willingness=0.1
+PARCELS_MAXLOAD=180
+PARCELS_DROPTIME=120
+PARCELS_SUCCESS_B2C=0.90
+PARCELS_SUCCESS_B2B=0.95
+PARCELS_GROWTHFREIGHT=1.0
 
-PARCELS_PER_EMPL=0.00                   # float
-Local2Local=0.04                        # float
-CS_cust_willingness=0.1                 # float - Willingess to SEND a parcel by CS
-PARCELS_MAXLOAD=180                     # float
-PARCELS_DROPTIME=120                    # float
-PARCELS_SUCCESS_B2C=0.90                # float
-PARCELS_SUCCESS_B2B=0.95                # float
-PARCELS_GROWTHFREIGHT=1.0               # float
+PARCELS_PER_HH_B2C=0.195
+PARCELS_M=20.8
+PARCELS_DAYS=250
+PARCELS_M_HHS=8.0
 
-PARCELS_PER_HH_B2C=0.195                # float
-PARCELS_M=20.8                          # float
-PARCELS_DAYS=250                        # float
-PARCELS_M_HHS=8.0                       # float
+# string list parameters
+Gemeenten_studyarea="Delft,Midden_Delfland,Rijswijk,sGravenhage,Leidschendam_Voorburg"
+```
+
+### Examples
+
+In the following examples, it is assumed that the user has placed all necessary input files in the `sample-data/inputs` directory while making sure that the `sample-data/outputs` directory exists.
+
+```
+parcel-generation -vvv --env .env \
+  sample-data/input/skimTijd_new_REF.mtx \
+  sample-data/input/skimAfstand_new_REF.mtx \
+  sample-data/input/Zones_v4.shp \
+  sample-data/input/SEGS2020.csv \
+  sample-data/input/parcelNodes_v2.shp \
+  sample-data/input/CEPshares.csv \
+  sample-data/input/SupCoordinatesID.csv \
+  sample-data/output
+```
+
+and with docker run (from the project's root directory):
+
+```
+docker run --rm \
+  -v $PWD/sample-data/input:/data/input \
+  -v $PWD/sample-data/output:/data/output \
+  --env-file .env \
+  parcel-generation:latest \
+  /data/input/skimTijd_new_REF.mtx \
+  /data/input/skimAfstand_new_REF.mtx \
+  /data/input/Zones_v4.shp \
+  /data/input/SEGS2020.csv \
+  /data/input/parcelNodes_v2.shp \
+  /data/input/CEPshares.csv \
+  /data/input/SupCoordinatesID.csv \
+  /data/output/
 ```
