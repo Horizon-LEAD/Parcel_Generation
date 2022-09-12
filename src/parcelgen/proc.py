@@ -242,39 +242,7 @@ def run_model(cfg, root=None):
     parcels.to_csv(out_parcel_demand, index=False)
 
     # Write KPIs as Json
-    # FIXME: iteration will never run - fix KPIs population to dict -> JSON
-    logger.info("Populating KPIs")
-    kpis = {}
-    kpis["Number Of Parcels"] = len(parcels)
-
-    # For some reason, json doesn't like np.int or floats
-    # for index, key in enumerate(kpis):
-    #     # print(key)
-    #     if type(kpis[key]) == 'dict':
-    #         for i, k in enumerate (key):
-    #             print(k)
-    #             if type(key[k]) == 'dict':
-    #                 for j, l in enumerate(k):
-    #                     try:
-    #                         val = k[l].item()
-    #                         k[l] = val
-    #                         key[k] = k
-    #                     except:
-    #                         a=1
-    #             else:
-    #                 try:
-    #                     val = key[k].item()
-    #                     key[k] = val
-    #                     kpis[key] = key
-    #                 except:
-    #                     a=1
-    #     else:
-    #         try:
-    #             val = kpis[key].item()
-    #             kpis[key] = val
-    #         except:
-    #             a=1
-
+    kpis = { "Number Of Parcels": len(parcels) }
     out_kpis_json = join(outdir, "kpis.json")
     logger.info("Writing KPIs JSON file to %s", out_kpis_json)
     with open(out_kpis_json, "w", encoding='utf_8') as fp_kpis:
