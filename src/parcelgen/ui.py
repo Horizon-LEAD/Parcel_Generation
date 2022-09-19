@@ -1,4 +1,4 @@
-""" ParcelGen UI module
+"""UI module
 """
 
 from threading import Thread

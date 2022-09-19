@@ -1,80 +1,17 @@
-"""ParcelGen utilities
+"""Utilities
 """
 from logging import getLogger
 import array
-import os.path
+from os.path import getsize, dirname
+from posixpath import splitext
+from zipfile import ZipFile
 
 import pandas as pd
 import numpy as np
 import shapefile as shp
 
-ENV_VARS = ["PARAMS_FILE", "SKIMTIME", "SKIMDISTANCE", "ZONES", "SEGS", "PARCELNODES",
-            "CEP_SHARES", "EXTERNAL_ZONES", "CONSOLIDATION_POTENTIAL",
-            "ZEZ_SCENARIO"]
-BOOL_VALUES = ('true', 't', 'on', '1', 'false', 'f', 'off', '0')
-BOOL_TRUE_VALUES = ('true', 't', 'on', '1')
-PARAMS_BOOL = ["RUN_DEMAND_MODULE", "CROWDSHIPPING_NETWORK", "COMBINE_DELIVERY_PICKUP_TOUR",
-               "HYPERCONNECTED_NETWORK", "printKPI"]
-PARAMS_NUM = ["PARCELS_PER_EMPL", "Local2Local", "CS_cust_willingness",
-              "PARCELS_MAXLOAD", "PARCELS_DROPTIME", "PARCELS_SUCCESS_B2C",
-              "PARCELS_SUCCESS_B2B", "PARCELS_GROWTHFREIGHT", "PARCELS_PER_HH_B2C",
-              "PARCELS_M", "PARCELS_DAYS", "PARCELS_M_HHS"]
-PARAMS_LIST_STR = ["Gemeenten_studyarea"] 
-
 
 logger = getLogger("parcelgen.utils")
-
-
-def parse_env_values(env):
-    """Parses environment values.
-
-    :param env: The environment dictionary
-    :type env: dict
-    :raises KeyError: If a required key is missing
-    :raises ValueError: If the value of the key is invalid
-    :return: The configuration dictionary
-    :rtype: dict
-    """
-    config_env = {}
-    try:
-        config_env["LABEL"] = env['LABEL']
-        for key in PARAMS_BOOL:
-            config_env[key] = to_bool(env[key])
-        for key in PARAMS_NUM:
-            config_env[key] = float(env[key])
-        for key in PARAMS_LIST_STR:
-            if env[key] == '':
-                config_env[key] = []
-            else:
-                config_env[key] = env[key].split(',')
-    except KeyError as exc:
-        raise KeyError("Failed while parsing environment configuration") from exc
-    except ValueError as exc:
-        raise ValueError("Failed while parsing environment configuration") from exc
-
-    config_env["PARCELS_PER_HH_C2C"] = config_env["PARCELS_M"] / config_env["PARCELS_DAYS"] \
-        / config_env["PARCELS_M_HHS"]
-    config_env["PARCELS_PER_HH"] = config_env["PARCELS_PER_HH_C2C"] + \
-        config_env['PARCELS_PER_HH_B2C']
-
-    return config_env
-
-
-def to_bool(value):
-    """Translates a string to boolean value.
-
-    :param value: The input string
-    :type value: str
-    :raises ValueError: raises value error if the string is not recognized.
-    :return: The translated boolean value
-    :rtype: bool
-    """
-    val = str(value).lower()
-    if val not in BOOL_VALUES:
-        raise ValueError(f'error: {value} is not a recognized boolean value {BOOL_VALUES}')
-    if val in BOOL_TRUE_VALUES:
-        return True
-    return False
 
 
 def get_traveltime(orig, dest, skim, n_zones, time_fac):
@@ -126,7 +63,7 @@ def read_mtx(mtxfile):
 
     mtx_data = array.array('i')
     with open(mtxfile, 'rb') as fp_mtx:
-        mtx_data.fromfile(fp_mtx, os.path.getsize(mtxfile) // mtx_data.itemsize)
+        mtx_data.fromfile(fp_mtx, getsize(mtxfile) // mtx_data.itemsize)
 
     # The number of zones is in the first byte
     mtx_data = np.array(mtx_data, dtype=int)[1:]
@@ -134,11 +71,15 @@ def read_mtx(mtxfile):
     return mtx_data
 
 
-def read_shape(shape_path, encoding='latin1', return_geometry=False):
+def read_shape(fpath, encoding='latin1', return_geometry=False):
     '''
     Read the shapefile with zones (using pyshp --> import shapefile as shp)
     '''
     # Load the shape
+    with ZipFile(fpath) as z:
+        z.extractall(path=dirname(fpath))
+
+    shape_path = splitext(fpath)[0] + '.shp'
     sf_reader = shp.Reader(shape_path, encoding=encoding)
     records = sf_reader.records()
     if return_geometry:
