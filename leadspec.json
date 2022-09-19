@@ -1,13 +1,13 @@
 {
     "name": "Parcel Generation",
     "description":"The Parcel Generation model generates [...].",
-    "version": "0.1.0",
+    "version": "1.0.1",
     "status":"draft",
     "types": [
         {"name": "Network Model", "description":"Network models deal with routing and allocation to road networks."}
     ],
-    "dockerImage":"registry.gitlab.com/inlecom/lead/models/parcel-gen:latest",
-    "url": "https://github.com/Horizon-LEAD/parcel-gen",
+    "dockerImage":"registry.gitlab.com/inlecom/lead/models/parcel-generation:latest",
+    "url": "https://github.com/Horizon-LEAD/Parcel_Generation",
     "modelData":  [
         {
             "name": "Time Skim Matrix",
@@ -72,7 +72,7 @@
                 "name": "file",
                 "description": "",
                 "dataType": "file",
-                "extension": "shp",
+                "extension": "zip",
                 "validators": [
                     {
                         "name": "required",
@@ -122,7 +122,7 @@
                 "name": "file",
                 "description": "",
                 "dataType": "file",
-                "extension": "shp",
+                "extension": "zip",
                 "validators": [
                     {
                         "name": "required",
@@ -189,6 +189,462 @@
                         "name": "external_zones_col_validation",
                         "validatorType": "columns",
                         "value": "{\"1\": {\"name\": \"Xcoor\", \"type\": \"float\"}, \"2\": {\"name\": \"Ycoor\", \"type\": \"float\"}, \"3\": {\"name\": \"AREANR\", \"type\": \"int\"}}"
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "LABEL",
+            "variableName": "LABEL",
+            "description": "Label",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "string",
+                "description": "",
+                "dataType": "string",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "RUN_DEMAND_MODULE",
+            "variableName": "RUN_DEMAND_MODULE",
+            "description": "RUN_DEMAND_MODULE",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "boolean",
+                "description": "",
+                "dataType": "boolean",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "CROWDSHIPPING_NETWORK",
+            "variableName": "CROWDSHIPPING_NETWORK",
+            "description": "CROWDSHIPPING_NETWORK",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "boolean",
+                "description": "",
+                "dataType": "boolean",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "COMBINE_DELIVERY_PICKUP_TOUR",
+            "variableName": "COMBINE_DELIVERY_PICKUP_TOUR",
+            "description": "COMBINE_DELIVERY_PICKUP_TOUR",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "boolean",
+                "description": "",
+                "dataType": "boolean",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "HYPERCONNECTED_NETWORK",
+            "variableName": "HYPERCONNECTED_NETWORK",
+            "description": "HYPERCONNECTED_NETWORK",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "boolean",
+                "description": "",
+                "dataType": "boolean",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "printKPI",
+            "variableName": "printKPI",
+            "description": "printKPI",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "boolean",
+                "description": "",
+                "dataType": "boolean",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_PER_EMPL",
+            "variableName": "PARCELS_PER_EMPL",
+            "description": "PARCELS_PER_EMPL",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "Local2Local",
+            "variableName": "Local2Local",
+            "description": "Local2Local",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "CS_cust_willingness",
+            "variableName": "CS_cust_willingness",
+            "description": "CS_cust_willingness",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_MAXLOAD",
+            "variableName": "PARCELS_MAXLOAD",
+            "description": "PARCELS_MAXLOAD",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_DROPTIME",
+            "variableName": "PARCELS_DROPTIME",
+            "description": "PARCELS_DROPTIME",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_SUCCESS_B2C",
+            "variableName": "PARCELS_SUCCESS_B2C",
+            "description": "PARCELS_SUCCESS_B2C",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_SUCCESS_B2B",
+            "variableName": "PARCELS_SUCCESS_B2B",
+            "description": "PARCELS_SUCCESS_B2B",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_GROWTHFREIGHT",
+            "variableName": "PARCELS_GROWTHFREIGHT",
+            "description": "PARCELS_GROWTHFREIGHT",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_PER_HH_B2C",
+            "variableName": "PARCELS_PER_HH_B2C",
+            "description": "PARCELS_PER_HH_B2C",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_M",
+            "variableName": "PARCELS_M",
+            "description": "PARCELS_M",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_DAYS",
+            "variableName": "PARCELS_DAYS",
+            "description": "PARCELS_DAYS",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "PARCELS_M_HHS",
+            "variableName": "PARCELS_M_HHS",
+            "description": "PARCELS_M_HHS",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
+            "name": "Gemeenten_studyarea",
+            "variableName": "Gemeenten_studyarea",
+            "description": "Gemeenten_studyarea",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "string",
+                "description": "",
+                "dataType": "string",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
                     }
                 ],
                 "objectKeys": []
@@ -263,38 +719,6 @@
                 "description": "",
                 "dataType": "file",
                 "extension": "json",
-                "validators": [
-                    {
-                        "name": "required",
-                        "description": "required",
-                        "validatorType": "required",
-                        "value": ""
-                    }
-                ],
-                "objectKeys": []
-            },
-            "fromRow": null,
-            "toRow": null,
-            "column": null,
-            "refModelData": null,
-            "jsonPath": null,
-            "sheet": null,
-            "delimiter": null,
-            "qualifier": null,
-            "dateFormat": null
-        },
-        {
-            "name": "Log File",
-            "variableName": "logs",
-            "description": "File containing the logs of the run.",
-            "isOutput": true,
-            "isOptional": false,
-            "chartType": "NONE",
-            "modelDataType": {
-                "name": "file",
-                "description": "",
-                "dataType": "file",
-                "extension": "txt",
                 "validators": [
                     {
                         "name": "required",
