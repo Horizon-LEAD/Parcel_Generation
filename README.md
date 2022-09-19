@@ -22,7 +22,7 @@ The executable's help message provides information on the parameters that are ne
 $ parcel-generation -h
 usage: parcel-generation [-h] [-v] [--flog] [-e ENV] [--gui] SKIMTIME SKIMDISTANCE ZONES SEGS PARCELNODES CEP_SHARES EXTERNAL_ZONES OUTDIR
 
-parcelgen
+parcel-generation
 
 Generates parcels
 
@@ -83,9 +83,9 @@ In the following examples, it is assumed that the user has placed all necessary 
 parcel-generation -vvv --env .env \
   sample-data/input/skimTijd_new_REF.mtx \
   sample-data/input/skimAfstand_new_REF.mtx \
-  sample-data/input/Zones_v4.shp \
+  sample-data/input/Zones_v4.zip \
   sample-data/input/SEGS2020.csv \
-  sample-data/input/parcelNodes_v2.shp \
+  sample-data/input/parcelNodes_v2.zip \
   sample-data/input/CEPshares.csv \
   sample-data/input/SupCoordinatesID.csv \
   sample-data/output
@@ -101,9 +101,9 @@ docker run --rm \
   parcel-generation:latest \
   /data/input/skimTijd_new_REF.mtx \
   /data/input/skimAfstand_new_REF.mtx \
-  /data/input/Zones_v4.shp \
+  /data/input/Zones_v4.zip \
   /data/input/SEGS2020.csv \
-  /data/input/parcelNodes_v2.shp \
+  /data/input/parcelNodes_v2.zip \
   /data/input/CEPshares.csv \
   /data/input/SupCoordinatesID.csv \
   /data/output/
