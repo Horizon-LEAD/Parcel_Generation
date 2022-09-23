@@ -154,11 +154,6 @@
                         "description": "required",
                         "validatorType": "required",
                         "value": ""
-                    },
-                    {
-                        "name": "courier_market_shares_col_validation",
-                        "validatorType": "columns",
-                        "value": "{\"1\": {\"name\": \"CEP\", \"type\": \"string\"}, \"2\": {\"name\": \"ShareTotal\", \"type\": \"float\"}}"
                     }
                 ],
                 "objectKeys": []
@@ -184,11 +179,6 @@
                         "description": "required",
                         "validatorType": "required",
                         "value": ""
-                    },
-                    {
-                        "name": "external_zones_col_validation",
-                        "validatorType": "columns",
-                        "value": "{\"1\": {\"name\": \"Xcoor\", \"type\": \"float\"}, \"2\": {\"name\": \"Ycoor\", \"type\": \"float\"}, \"3\": {\"name\": \"AREANR\", \"type\": \"int\"}}"
                     }
                 ],
                 "objectKeys": []
@@ -677,7 +667,7 @@
         },
         {
             "name": "Parcel Demand",
-            "variableName": "ParcelDemand",
+            "variableName": "ParcelDemand.csv",
             "description": "Parcel list with Origin, Destination and Courier.",
             "isOutput": true,
             "isOptional": false,
