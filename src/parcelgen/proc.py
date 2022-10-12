@@ -95,13 +95,24 @@ def run_model(cfg, root=None):
 
     # Calculate number of parcels per zone based on number of households and
     # total number of parcels on an average day
+    # Parcel lockers affect the success rate in the zones
     zones = zones[zones['GEMEENTEN'].isin(cfg['Gemeenten_studyarea'])]
-    zones['parcels']  = (segs['1: woningen'] * cfg['PARCELS_PER_HH']   / \
-        cfg['PARCELS_SUCCESS_B2C'])
-    zones['parcels'] += (segs['9: arbeidspl_totaal'] * cfg['PARCELS_PER_EMPL'] / \
-        cfg['PARCELS_SUCCESS_B2B'])
+    zones['ParcelLockerAdoption'] = zones['AREANR'].isin(cfg['parcelLockers_zones']) * cfg['PL_ZonalDemand']
+    zones['parcelSuccessB2C'] = zones['ParcelLockerAdoption'] + \
+        (1-zones['ParcelLockerAdoption'])*cfg['PARCELS_SUCCESS_B2C']   #  This makes the parcel locker adoption affect the overall success rate	
+    zones['parcelSuccessB2B'] = zones['ParcelLockerAdoption'] + \
+        (1-zones['ParcelLockerAdoption'])*cfg['PARCELS_SUCCESS_B2B']  
+    zones['woningen'] = segs['1: woningen'        ] 
+    zones['arbeidspl_totaal'] =segs['9: arbeidspl_totaal']
+    zones['parcels'] = zones['woningen'] * cfg['PARCELS_PER_HH']     / \
+        zones['parcelSuccessB2C']
+    zones['parcels'] +=  zones['arbeidspl_totaal'] * cfg['PARCELS_PER_EMPL']   / \
+         zones['parcelSuccessB2B']
+    zones['parcels']  = np.array(np.round(zones['parcels'],0), dtype=int)
     zones['parcels']  = np.array(np.round(zones['parcels'],0), dtype=int)
 
+
+    ParcelDemand =  np.round( sum(zones['woningen'] * cfg['PARCELS_PER_HH']  + zones['arbeidspl_totaal'] * cfg['PARCELS_PER_EMPL'] ) ,0) # Demand without counting success rate
     # Spread over couriers based on market shares
     for cep in cep_list:
         zones['parcels_' + str(cep)] = np.round(cep_shares['ShareTotal'][cep] * zones['parcels'], 0)
@@ -142,6 +153,15 @@ def run_model(cfg, root=None):
     # Put the parcel demand data back in a DataFrame
     parcels = pd.DataFrame(parcels, columns=cols)
     parcels['CEP'] = parcels_cep
+
+
+    # Make PL demand
+    lockers_arr = cfg['parcelLockers_zones']
+    parcels['PL']=0 #creating a column filled with 0
+    PL_ZonalDemand = cfg['PL_ZonalDemand']
+    temp = parcels[parcels['D_zone'].isin(lockers_arr)].sample(frac = PL_ZonalDemand) #creating a temporary dataframe filled with parcels, selected among the ones with a D_zone in which there is a PL (chosing randomly through PL_ZonalDemand since not every parcel will be delivered in that way)
+    parcelsID = temp.Parcel_ID.unique()
+    parcels.loc[parcels['Parcel_ID'].isin(parcelsID),'PL'] = parcels['D_zone'] # Here we are allowing that only the parcels of a zone are capable of using lockers. This can be changed for neighbouring zones and this line should be updated
 
     # Default vehicle type for parcel deliveries: vans
     parcels['VEHTYPE'] = 7
@@ -242,7 +262,13 @@ def run_model(cfg, root=None):
     parcels.to_csv(out_parcel_demand, index=False)
 
     # Write KPIs as Json
-    kpis = { "Number Of Parcels": len(parcels) }
+    kpis = { "Number Of Parcels to be delivered per day (with redelivery)": len(parcels) }
+    kpis ["New parcel daily demand"] = ParcelDemand
+    kpis ["Redelivered parcels"] =  len(parcels) - ParcelDemand
+    kpis ["Number Of Parcels to Parcel lockers"] = np.count_nonzero(parcels['PL'])
+    for cep in cep_list:
+        parcelCEP =parcels[parcels["CEP"] == cep]
+        kpis['ParcelDemand_' + cep] =  len(parcelCEP)
     out_kpis_json = join(outdir, "kpis.json")
     logger.info("Writing KPIs JSON file to %s", out_kpis_json)
     with open(out_kpis_json, "w", encoding='utf_8') as fp_kpis:
