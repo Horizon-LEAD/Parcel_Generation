@@ -77,7 +77,9 @@ Gemeenten_studyarea="Delft,Midden_Delfland,Rijswijk,sGravenhage,Leidschendam_Voo
 
 ### Examples
 
-In the following examples, it is assumed that the user has placed all necessary input files in the `sample-data/inputs` directory while making sure that the `sample-data/outputs` directory exists.
+In the following examples, it is assumed that the user's terminal is at the project's root directory. Also that all the necessary input files are located in the `sample-data/inputs` directory and that the `sample-data/outputs` directory exists.
+
+The user can then execute the model by running the executable.
 
 ```
 parcel-generation -vvv --env .env \
@@ -91,7 +93,9 @@ parcel-generation -vvv --env .env \
   sample-data/output
 ```
 
-and with docker run (from the project's root directory):
+If the package installation has been omitted, the model can of course also be run with `python -m src.parcelgen.__main__ <args>`.
+
+Finally, the model can be executed with `docker run`:
 
 ```
 docker run --rm \
