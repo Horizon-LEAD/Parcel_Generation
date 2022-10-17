@@ -249,7 +249,7 @@ def run_model(cfg, root=None):
         json.dump(kpis, fp_kpis, indent = 2)
 
     if cfg['printKPI'] :
-        logger.info(json.dumps(kpis, indent = 2))
+        logger.info("KPIs:\n%s", json.dumps(kpis, indent = 2))
 
     totaltime = round(time() - start_time, 2)
     logger.info("Total runtime: %s seconds", totaltime)
