@@ -14,10 +14,10 @@ PARAMS_BOOL = ["RUN_DEMAND_MODULE", "CROWDSHIPPING_NETWORK", "COMBINE_DELIVERY_P
 PARAMS_NUM = ["PARCELS_PER_EMPL", "Local2Local", "CS_cust_willingness",
               "PARCELS_MAXLOAD", "PARCELS_DROPTIME", "PARCELS_SUCCESS_B2C",
               "PARCELS_SUCCESS_B2B", "PARCELS_GROWTHFREIGHT", "PARCELS_PER_HH_B2C",
-              "PARCELS_M", "PARCELS_DAYS", "PARCELS_M_HHS"]
+              "PARCELS_M", "PARCELS_DAYS", "PARCELS_M_HHS", "PL_ZonalDemand"]
 PARAMS_LIST_STR = ["Gemeenten_studyarea"] 
 PARAMS_LIST_BOOL = []
-PARAMS_LIST_NUM = []
+PARAMS_LIST_NUM = ["parcelLockers_zones"]
 PARAMS_JSON = []
 
 logger = getLogger("parcelgen.envctl")
