@@ -14,4 +14,4 @@ tk = "==0.1.0"
 pylint = "*"
 
 [requires]
-python_version = "3.8.6"
+python_version = "3.8"
