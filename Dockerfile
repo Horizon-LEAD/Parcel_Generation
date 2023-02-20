@@ -8,10 +8,12 @@ RUN apt-get update && \
    rm -rf /var/lib/apt/lists/*
 
 COPY setup.py requirements.txt README.md ./
-COPY src src
-
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir .
+    pip install -r requirements.txt
+
+COPY src src
+RUN pip install .
+
+WORKDIR /
 
 ENTRYPOINT [ "parcel-generation", "-vv" ]
