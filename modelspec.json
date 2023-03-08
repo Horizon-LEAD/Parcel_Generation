@@ -715,7 +715,7 @@
         },
         {
             "name": "Parcel Demand",
-            "variableName": "ParcelDemand.csv",
+            "variableName": "ParcelDemand",
             "description": "Parcel list with Origin, Destination and Courier.",
             "isOutput": true,
             "isOptional": false,
