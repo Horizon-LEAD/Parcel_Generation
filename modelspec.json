@@ -521,6 +521,30 @@
             }
         },
         {
+            "name": "Parcel Lockers Zonal Demand",
+            "variableName": "PL_ZonalDemand",
+            "description": "PL_ZonalDemand",
+            "isOutput": false,
+            "isOutputDir": false,
+            "isOptional": false,
+            "inputType": "ENV",
+            "chartType": "NONE",
+            "modelDataType": {
+                "name": "number",
+                "description": "",
+                "dataType": "number",
+                "validators": [
+                    {
+                        "name": "required",
+                        "description": "required",
+                        "validatorType": "required",
+                        "value": ""
+                    }
+                ],
+                "objectKeys": []
+            }
+        },
+        {
             "name": "PARCELS_PER_HH_B2C",
             "variableName": "PARCELS_PER_HH_B2C",
             "description": "PARCELS_PER_HH_B2C",
