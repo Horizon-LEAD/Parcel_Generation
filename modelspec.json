@@ -3,9 +3,6 @@
     "description":"The Parcel Generation model generates [...].",
     "version": "1.0.1",
     "status":"draft",
-    "types": [
-        {"name": "Network Model", "description":"Network models deal with routing and allocation to road networks."}
-    ],
     "dockerImage":"registry.gitlab.com/inlecom/lead/models/parcel-generation:latest",
     "url": "https://github.com/Horizon-LEAD/Parcel_Generation",
     "modelData":  [
