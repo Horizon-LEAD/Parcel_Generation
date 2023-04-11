@@ -57,8 +57,8 @@
             }
         },
         {
-            "name": "Area shape file",
-            "variableName": "area",
+            "name": "Zones shape file",
+            "variableName": "zones",
             "description": "Shapefile of the city. The areas delimited should be linked with the areas in the Socioeconomic Data file.",
             "isOutput": false,
             "isOutputDir": false,
